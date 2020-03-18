@@ -16,7 +16,7 @@ package client
 
 import (
 	"log"
-	"fmt"
+
 	// "github.com/opensds/multi-cloud/api/pkg/filters/context"
 )
 
@@ -56,7 +56,7 @@ func NewClient(c *Config) *Client {
 	}
 
 	t := c.AuthOptions.GetTenantID()
-	fmt.Println("JVP:: tenant ID=", t)
+
 	return &Client{
 		cfg:         c,
 		BackendMgr:  NewBackendMgr(r, c.Endpoint, t),

@@ -184,8 +184,6 @@ func request(url string, method string, headers HeaderOption,
 		return err
 	}
 
-	fmt.Println("JVP:-----------GOT RESP---------------", err)
-
 	if 400 <= resp.StatusCode && resp.StatusCode <= 599 {
 		log.Printf("Response statusCode: %+v\n", resp.StatusCode)
 		return NewHTTPError(resp.StatusCode, "")
@@ -260,10 +258,8 @@ func (*receiver) Recv(url string, method string, headers HeaderOption,
 // NewKeystoneReciver implementation
 func NewKeystoneReciver(auth *KeystoneAuthOptions) Receiver {
 	k := &KeystoneReciver{Auth: auth}
-	fmt.Println("JVP:: FIRST GetToken")
 	err := k.GetToken()
 	if err != nil {
-		fmt.Println("JVP:: GET Token failed")
 		log.Printf("Failed to get token: %v", err)
 	}
 	return k
@@ -288,14 +284,10 @@ func (k *KeystoneReciver) GetToken() error {
 		AllowReauth:      k.Auth.AllowReauth,
 	}
 
-	fmt.Println("JVP:: In get token auth-", k.Auth)
 	provider, err := openstack.AuthenticatedClient(opts)
-	fmt.Println("JVP:: ERROR=", err)
 	if err != nil {
 		return fmt.Errorf("When get auth client: %v", err)
 	}
-
-	fmt.Println("JVP:: before identity")
 
 	// Only support keystone v3
 	identity, err := openstack.NewIdentityV3(provider, gophercloud.EndpointOpts{})
@@ -303,9 +295,6 @@ func (k *KeystoneReciver) GetToken() error {
 		return fmt.Errorf("When get identity session: %v", err)
 	}
 	
-	fmt.Println("JVP:: before token create")
-
-
 	r := tokens.Create(identity, &opts)
 	token, err := r.ExtractToken()
 	if err != nil {
@@ -318,24 +307,19 @@ func (k *KeystoneReciver) GetToken() error {
 	k.Auth.TenantID = project.ID
 	k.Auth.TokenID = token.ID
 
-	fmt.Println("JVP:: TenantID", k.Auth.TenantID)
-	fmt.Println("JVP:: TOKEN", k.Auth.TokenID)
 	return nil
 }
 
 // Recv implementation
 func (k *KeystoneReciver) Recv(url string, method string, headers HeaderOption,
 	reqBody interface{}, respBody interface{}, needMarshal bool, outFileName string) error {
-	fmt.Println("JVP:: In Recv url-", url)
 	desc := fmt.Sprintf("%s %s", method, url)
 	return utils.Retry(2, desc, true, func(retryIdx int, lastErr error) error {
 		if retryIdx > 0 {
 			err, ok := lastErr.(*HTTPError)
 			if ok && err.Code == http.StatusUnauthorized {
-				fmt.Println("JVP:: SECOND GetToken")
 				err := k.GetToken()
 				if err != nil {
-					fmt.Println("JVP:: GET Token failed 2")
 					log.Printf("Failed to get token: %v", err)
 				}
 			} else {
@@ -352,7 +336,6 @@ func (k *KeystoneReciver) Recv(url string, method string, headers HeaderOption,
 			headers[constants.SignDateHeader] = now
 			// headers[constants.SubjectTokenHeader] = "tUenT0MboBwNOhiA8uqd"
 		}
-		fmt.Println("JVP:: In Recv headers-", headers)
 		return request(url, method, headers, reqBody, respBody, needMarshal, outFileName)
 	})
 }

@@ -17,7 +17,6 @@ package cli
 import (
 	"encoding/json"
 	"os"
-	"fmt"
 	backend "github.com/opensds/multi-cloud/backend/proto"
 	"github.com/spf13/cobra"
 )
@@ -135,7 +134,6 @@ func backendShowAction(cmd *cobra.Command, args []string) {
 func backendListAction(cmd *cobra.Command, args []string) {
 	ArgsNumCheck(cmd, args, 0)
 
-	fmt.Println("JVP:: In backend list")
 	resp, err := client.ListBackends()
 	if err != nil {
 		Fatalln(HTTPErrStrip(err))

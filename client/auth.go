@@ -15,7 +15,6 @@
 package client
 
 import "os"
-import "fmt"
 
 const (
 	// Keystone value of OS_AUTH_AUTHSTRATEGY
@@ -107,17 +106,6 @@ func LoadKeystoneAuthOptions() *KeystoneAuthOptions {
 
 	opt.Accesskey = os.Getenv(OsAccesskey)
 	opt.Region = os.Getenv(OsRegion)
-
-	fmt.Println("JVP:: opt.IdentityEndpoint->", opt.IdentityEndpoint)
-	fmt.Println("JVP:: opt.Username->", opt.Username)
-	fmt.Println("JVP:: opt.Password->", opt.Password)
-	fmt.Println("JVP:: opt.TenantName->", opt.TenantName)
-	fmt.Println("JVP:: projectName->", projectName)
-	fmt.Println("JVP:: opt.DomainID->", opt.DomainID)
-	fmt.Println("JVP:: opt.TenantName->", opt.TenantName)
-	fmt.Println("JVP:: opt.Accesskey->", opt.Accesskey)
-	fmt.Println("JVP:: opt.Region->", opt.Region)
-	fmt.Println("JVP:: opt->", opt)
 
 	return opt
 }

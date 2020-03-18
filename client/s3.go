@@ -20,7 +20,6 @@ import (
 	"log"
 	"strconv"
 	"strings"
-	"fmt"
 
 	S3model "github.com/opensds/multi-cloud/s3/pkg/model"
 	"github.com/opensds/multi-cloud/s3/proto"
@@ -95,14 +94,11 @@ func (b *BucketMgr) ListBuckets() ([]S3model.Bucket, error) {
 		b.Endpoint,
 		GenerateS3URL(b.TenantID)}, "/")
 
-	fmt.Println("JVP:: In list bucket --- ")
 	res := S3model.ListAllMyBucketsResult{}
 	if err := b.Recv(url, "GET", XMLHeaders, nil, &res, true, ""); err != nil {
-		fmt.Println("JVP:: error: ", err)
 		return nil, err
 	}
 
-	fmt.Println("JVP:: res: ", res)
 	return res.Buckets, nil
 }
 
