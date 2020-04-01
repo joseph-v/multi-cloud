@@ -1,4 +1,4 @@
-// Copyright (c) 2018 Huawei Technologies Co., Ltd. All Rights Reserved.
+// Copyright 2019 The OpenSDS Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,9 +17,10 @@ package main
 import (
 	"fmt"
 
-	"github.com/micro/go-log"
+	log "github.com/sirupsen/logrus"
 	"github.com/micro/go-micro"
 	datamover "github.com/opensds/multi-cloud/datamover/pkg"
+	"github.com/opensds/multi-cloud/api/pkg/utils/obs"
 )
 
 func main() {
@@ -27,7 +28,8 @@ func main() {
 		micro.Name("datamover"),
 	)
 
-	log.Log("Init datamover serivice")
+	obs.InitLogs()
+	log.Info("Init datamover serivice")
 	service.Init()
 
 	datamover.InitDatamoverService()

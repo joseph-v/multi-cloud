@@ -1,4 +1,4 @@
-// Copyright (c) 2018 Huawei Technologies Co., Ltd. All Rights Reserved.
+// Copyright 2019 The OpenSDS Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import (
 	"os"
 
 	micro "github.com/micro/go-micro"
+	"github.com/opensds/multi-cloud/api/pkg/utils/obs"
 	"github.com/opensds/multi-cloud/backend/pkg/db"
 	handler "github.com/opensds/multi-cloud/backend/pkg/service"
 	"github.com/opensds/multi-cloud/backend/pkg/utils/config"
@@ -32,6 +33,7 @@ func main() {
 		Endpoint: dbHost})
 	defer db.Exit()
 
+	obs.InitLogs()
 	service := micro.NewService(
 		micro.Name("backend"),
 	)

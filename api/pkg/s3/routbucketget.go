@@ -20,11 +20,13 @@ import (
 )
 
 func (s *APIService) RouteBucketGet(request *restful.Request, response *restful.Response) {
-	if !policy.Authorize(request, response, "routbucket:get") {
+	if !policy.Authorize(request, response, "bucket:get") {
 		return
 	}
 	if IsQuery(request, "acl") {
-		//TODO
+		s.BucketAclGet(request, response)
+	} else if IsQuery(request, "uploads") {
+		s.ListBucketUploadRecords(request, response)
 	} else if IsQuery(request, "versioning") {
 		//TODO
 	} else if IsQuery(request, "website") {

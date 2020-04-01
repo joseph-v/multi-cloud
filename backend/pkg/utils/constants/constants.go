@@ -1,4 +1,4 @@
-// Copyright (c) 2018 Huawei Technologies Co., Ltd. All Rights Reserved.
+// Copyright 2019 The OpenSDS Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ const (
 	BackendTypeObs       = "hw-obs"
 	BackendTypeAzure     = "azure-blob"
 	BackendTypeCeph      = "ceph-s3"
-	BackendTypeGcp       = "gcp-s3"
+	BackendTypeGcs       = "gcp-s3"
 	BackendFusionStorage = "fusionstorage-object"
+	BackendTypeYIGS3     = "yig"
 )

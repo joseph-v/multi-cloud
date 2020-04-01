@@ -1,4 +1,4 @@
-// Copyright (c) 2018 Huawei Technologies Co., Ltd. All Rights Reserved.
+// Copyright 2019 The OpenSDS Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,9 +17,18 @@ package main
 import (
 	"fmt"
 
-	micro "github.com/micro/go-micro"
-	handler "github.com/opensds/multi-cloud/s3/pkg"
+	"github.com/micro/go-micro"
+	"github.com/opensds/multi-cloud/api/pkg/utils/obs"
+	_ "github.com/opensds/multi-cloud/s3/pkg/datastore"
+	"github.com/opensds/multi-cloud/s3/pkg/datastore/driver"
+	"github.com/opensds/multi-cloud/s3/pkg/datastore/yig/config"
+	gc "github.com/opensds/multi-cloud/s3/pkg/gc"
+	"github.com/opensds/multi-cloud/s3/pkg/helper"
+	"github.com/opensds/multi-cloud/s3/pkg/meta/redis"
+	handler "github.com/opensds/multi-cloud/s3/pkg/service"
 	pb "github.com/opensds/multi-cloud/s3/proto"
+	log "github.com/sirupsen/logrus"
+	_ "go.uber.org/automaxprocs"
 )
 
 func main() {
@@ -27,9 +36,25 @@ func main() {
 		micro.Name("s3"),
 	)
 
-	micro.NewService()
+	obs.InitLogs()
+	service.Init(micro.AfterStop(func() error {
+		driver.FreeCloser()
+		gc.Stop()
+		return nil
+	}))
 
-	service.Init()
+	helper.SetupConfig()
+
+	log.Infof("YIG conf: %+v \n", helper.CONFIG)
+	log.Infof("YIG instance ID:", helper.CONFIG.InstanceId)
+
+	if helper.CONFIG.MetaCacheType > 0 || helper.CONFIG.EnableDataCache {
+		cfg := config.CacheConfig{
+			Mode:    helper.CONFIG.RedisMode,
+			Address: helper.CONFIG.RedisAddress,
+		}
+		redis.Initialize(&cfg)
+	}
 
 	pb.RegisterS3Handler(service.Server(), handler.NewS3Service())
 	if err := service.Run(); err != nil {
