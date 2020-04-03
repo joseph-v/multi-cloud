@@ -17,7 +17,6 @@ package client
 import (
 	"log"
 
-	"github.com/opensds/multi-cloud/api/pkg/filters/context"
 )
 
 // Client is a struct for exposing some operations of resources.
@@ -52,7 +51,7 @@ func NewClient(c *Config) *Client {
 	default:
 		log.Printf("Warnning: Not support auth options, use default")
 		r = NewReceiver()
-		c.AuthOptions = NewNoauthOptions(context.DefaultTenantId)
+		c.AuthOptions = NewNoauthOptions("DefaultTenantId")
 	}
 
 	t := c.AuthOptions.GetTenantID()

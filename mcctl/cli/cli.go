@@ -20,7 +20,6 @@ import (
 	"log"
 	"os"
 
-	"github.com/opensds/multi-cloud/api/pkg/filters/context"
 	"github.com/opensds/multi-cloud/api/pkg/utils"
 	c "github.com/opensds/multi-cloud/client"
 	"github.com/spf13/cobra"
@@ -173,9 +172,9 @@ func Run() error {
 	case c.Keystone:
 		cfg.AuthOptions = c.LoadKeystoneAuthOptions()
 	case c.Noauth:
-		cfg.AuthOptions = c.NewNoauthOptions(context.NoAuthAdminTenantId)
+		cfg.AuthOptions = c.NewNoauthOptions("NoAuthAdminTenantId")
 	default:
-		cfg.AuthOptions = c.NewNoauthOptions(context.DefaultTenantId)
+		cfg.AuthOptions = c.NewNoauthOptions("DefaultTenantId")
 	}
 
 	client = c.NewClient(cfg)

@@ -108,12 +108,12 @@ func (b *BucketMgr) ListObjects(BucketName string) ([]*s3.Object, error) {
 		b.Endpoint,
 		GenerateS3URL(b.TenantID), BucketName}, "/")
 
-	res := s3.ListObjectResponse{}
+	res := s3.ListObjectsResponse{}
 	if err := b.Recv(url, "GET", XMLHeaders, nil, &res, true, ""); err != nil {
 		return nil, err
 	}
 
-	return res.ListObjects, nil
+	return res.Objects, nil
 }
 
 // UploadObject implementation

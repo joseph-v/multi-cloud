@@ -29,12 +29,15 @@ import (
 	"github.com/gophercloud/gophercloud"
 	"github.com/gophercloud/gophercloud/openstack"
 	"github.com/gophercloud/gophercloud/openstack/identity/v3/tokens"
-	"github.com/opensds/multi-cloud/api/pkg/filters/signature/credentials/keystonecredentials"
-	"github.com/opensds/multi-cloud/api/pkg/filters/signature/signer"
 	"github.com/opensds/multi-cloud/api/pkg/model"
 	"github.com/opensds/multi-cloud/api/pkg/utils"
 	"github.com/opensds/multi-cloud/api/pkg/utils/constants"
 	"github.com/opensds/multi-cloud/api/pkg/utils/obs"
+)
+
+const (
+	HeaderValueJson = "application/json"
+	HeaderValueXml = "application/xml"
 )
 
 // NewHTTPError implementation
@@ -57,10 +60,6 @@ func (e *HTTPError) Decode() {
 		e.Msg = errSpec.Message
 	}
 
-	err = json.Unmarshal([]byte(e.Desc), &errSpec)
-	if err == nil {
-		e.Desc = errSpec.Desc
-	}
 }
 
 // Error implementation
@@ -83,41 +82,6 @@ func NewReceiver() Receiver {
 	return &receiver{}
 }
 
-func CalculateSignature(headers HeaderOption, req *http.Request) string {
-	authorization, ok := headers[constants.AuthorizationHeader]
-	if !ok {
-		log.Printf("There is no %v in headers", constants.AuthorizationHeader)
-		return ""
-	}
-
-	requestDateTime, ok := headers[constants.SignDateHeader]
-	if !ok {
-		log.Printf("There is no %v in headers", constants.SignDateHeader)
-		return ""
-	}
-
-	authorizationParts := strings.Split(authorization, ",")
-	credential, _ := strings.TrimSpace(authorizationParts[0]), strings.TrimSpace(authorizationParts[2])
-	credentialParts := strings.Split(credential, " ")
-	creds := credentialParts[1]
-	credsParts := strings.Split(creds, "=")
-	credentialStr := credsParts[1]
-	credentialStrParts := strings.Split(credentialStr, "/")
-	accessKeyID, requestDate, region, service := credentialStrParts[0], credentialStrParts[1], credentialStrParts[2], credentialStrParts[3]
-	//TODO Get Request Body
-	body := ""
-	credentials := keystonecredentials.NewCredentialsClient(accessKeyID)
-	Signer := signer.NewSigner(credentials)
-	calculatedSignature, err := Signer.Sign(req, body, service, region, requestDateTime, requestDate, credentialStr)
-	if err != nil {
-		log.Printf("signer.Sign err:%+v", err)
-		return ""
-	}
-
-	log.Printf("calculatedSignature:%+v", calculatedSignature)
-	return calculatedSignature
-}
-
 // request implementation
 func request(url string, method string, headers HeaderOption,
 	reqBody interface{}, respBody interface{}, needMarshal bool, outFileName string) error {
@@ -136,13 +100,13 @@ func request(url string, method string, headers HeaderOption,
 
 		if needMarshal {
 			switch contentType {
-			case constants.HeaderValueJson:
+			case HeaderValueJson:
 				body, err = json.MarshalIndent(reqBody, "", "  ")
 				if err != nil {
 					return err
 				}
 				break
-			case constants.HeaderValueXml:
+			case HeaderValueXml:
 				body, err = xml.Marshal(reqBody)
 				if err != nil {
 					return err
@@ -169,7 +133,7 @@ func request(url string, method string, headers HeaderOption,
 		}
 	}
 
-	calculatedSignature := CalculateSignature(headers, req.GetRequest())
+	calculatedSignature := ""
 	if "" != calculatedSignature {
 		req.Header(constants.AuthorizationHeader, headers[constants.AuthorizationHeader]+calculatedSignature)
 	}
@@ -211,13 +175,13 @@ func request(url string, method string, headers HeaderOption,
 		}
 
 		switch respContentType {
-		case constants.HeaderValueJson:
+		case HeaderValueJson:
 			if err = json.Unmarshal(rbody, respBody); err != nil {
 				return fmt.Errorf("failed to unmarshal result message: %v", err)
 			}
 			log.Printf("application/json, respBody=%+v\n", respBody)
 			break
-		case constants.HeaderValueXml, "text/xml; charset=utf-8":
+		case HeaderValueXml, "text/xml; charset=utf-8":
 			if err = xml.Unmarshal(rbody, respBody); err != nil {
 				return fmt.Errorf("failed to unmarshal result message: %v", err)
 			}
@@ -329,7 +293,6 @@ func (k *KeystoneReciver) Recv(url string, method string, headers HeaderOption,
 			headers[constants.AuthorizationHeader] = authorizationStr
 			headers[constants.SignDateHeader] = now
 		}
-
 		return request(url, method, headers, reqBody, respBody, needMarshal, outFileName)
 	})
 }

@@ -70,7 +70,7 @@ func generateURL(resource string, tenantID string, in ...string) string {
 		return strings.Join(value, "/")
 	}
 
-	value := []string{CurrentVersion(), tenantID, resource}
+	value := []string{tenantID, resource}
 	value = append(value, in...)
 
 	return strings.Join(value, "/")
