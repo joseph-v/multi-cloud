@@ -16,6 +16,7 @@ package client
 
 import (
 	"strings"
+	"fmt"
 
 	"github.com/opensds/multi-cloud/api/pkg/utils/obs"
 )
@@ -54,7 +55,7 @@ func GeneratePolicyURL(tenantID string, in ...string) string {
 
 // GenerateS3URL implementation
 func GenerateS3URL(tenantID string, in ...string) string {
-	return generateURL("s3", "", in...)
+	return generateURL("","", in...)
 }
 
 // CurrentVersion implementation
@@ -65,7 +66,8 @@ func CurrentVersion() string {
 func generateURL(resource string, tenantID string, in ...string) string {
 	// If project id is not specified, ignore it.
 	if tenantID == "" {
-		value := []string{CurrentVersion(), resource}
+		fmt.Println("JVP:: Tenant id is nill")
+		value := []string{/*CurrentVersion(),*/ resource}
 		value = append(value, in...)
 		return strings.Join(value, "/")
 	}
