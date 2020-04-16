@@ -24,6 +24,7 @@ type Client struct {
 	*BackendMgr
 	*BucketMgr
 	*DataflowMgr
+	*AccessKeyMgr
 
 	cfg *Config
 }
@@ -60,5 +61,6 @@ func NewClient(c *Config) *Client {
 		BackendMgr:  NewBackendMgr(r, c.Endpoint, t),
 		BucketMgr:   NewBucketMgr(r, c.Endpoint, t),
 		DataflowMgr: NewDataflowMgr(r, c.Endpoint, t),
+		AccessKeyMgr: NewAccessKeyMgr(r, c.Endpoint, t, c.AuthOptions.GetUserID()),
 	}
 }

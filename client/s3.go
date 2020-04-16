@@ -22,7 +22,7 @@ import (
 	"strings"
 
 	S3model "github.com/opensds/multi-cloud/s3/pkg/model"
-	"github.com/opensds/multi-cloud/s3/proto"
+	"github.com/opensds/multi-cloud/api/pkg/s3/datatype"
 )
 
 // CBaseResponse implementation
@@ -64,7 +64,7 @@ type BucketMgr struct {
 func (b *BucketMgr) CreateBucket(name string, body *S3model.CreateBucketConfiguration) (*CBaseResponse, error) {
 	url := strings.Join([]string{
 		b.Endpoint,
-		GenerateS3URL(b.TenantID), name}, "/")
+		name}, "/")
 
 	res := CBaseResponse{}
 	if err := b.Recv(url, "PUT", XMLHeaders, body, &res, true, ""); err != nil {
@@ -89,38 +89,38 @@ func (b *BucketMgr) DeleteBucket(name string) (*CBaseResponse, error) {
 }
 
 // ListBuckets implementation
-func (b *BucketMgr) ListBuckets() ([]S3model.Bucket, error) {
+func (b *BucketMgr) ListBuckets() ([]datatype.Bucket, error) {
 	url := strings.Join([]string{
 		b.Endpoint,
 		GenerateS3URL(b.TenantID)}, "/")
 
-	res := S3model.ListAllMyBucketsResult{}
+	res := datatype.ListBucketsResponse{}
 	if err := b.Recv(url, "GET", XMLHeaders, nil, &res, true, ""); err != nil {
 		return nil, err
 	}
 
-	return res.Buckets, nil
+	return res.Buckets.Buckets, nil
 }
 
 // ListObjects implementation
-func (b *BucketMgr) ListObjects(BucketName string) ([]*s3.Object, error) {
+func (b *BucketMgr) ListObjects(BucketName string) ([]datatype.Object, error) {
 	url := strings.Join([]string{
 		b.Endpoint,
-		GenerateS3URL(b.TenantID), BucketName}, "/")
+		BucketName}, "/")
 
-	res := s3.ListObjectsResponse{}
+	res := datatype.ListObjectsResponse{}
 	if err := b.Recv(url, "GET", XMLHeaders, nil, &res, true, ""); err != nil {
 		return nil, err
 	}
 
-	return res.Objects, nil
+	return res.Contents, nil
 }
 
 // UploadObject implementation
 func (b *BucketMgr) UploadObject(BucketName, ObjectKey, Object string) (*CBaseResponse, error) {
 	url := strings.Join([]string{
 		b.Endpoint,
-		GenerateS3URL(b.TenantID), BucketName, ObjectKey}, "/")
+		BucketName, ObjectKey}, "/")
 
 	//res, err := exec.Command("curl", "-H", "Content-type: application/xml", "-X",
 	//	"PUT", "-T", Object, url).CombinedOutput()
@@ -142,7 +142,7 @@ func (b *BucketMgr) UploadObject(BucketName, ObjectKey, Object string) (*CBaseRe
 func (b *BucketMgr) DownloadObject(BucketName string, ObjectKey string) error {
 	url := strings.Join([]string{
 		b.Endpoint,
-		GenerateS3URL(b.TenantID), BucketName, ObjectKey}, "/")
+		BucketName, ObjectKey}, "/")
 
 	return b.Recv(url, "GET", XMLHeaders, nil, nil, true, ObjectKey)
 }
@@ -151,7 +151,7 @@ func (b *BucketMgr) DownloadObject(BucketName string, ObjectKey string) error {
 func (b *BucketMgr) DeleteObject(BucketName string, ObjectKey string) (*CBaseResponse, error) {
 	url := strings.Join([]string{
 		b.Endpoint,
-		GenerateS3URL(b.TenantID), BucketName, ObjectKey}, "/")
+		BucketName, ObjectKey}, "/")
 
 	res := CBaseResponse{}
 	if err := b.Recv(url, "DELETE", XMLHeaders, nil, &res, true, ""); err != nil {
@@ -165,7 +165,7 @@ func (b *BucketMgr) DeleteObject(BucketName string, ObjectKey string) (*CBaseRes
 func (b *BucketMgr) GetStorageClasses() ([]S3model.StorageClass, error) {
 	url := strings.Join([]string{
 		b.Endpoint,
-		GenerateS3URL(b.TenantID), "storageClasses"}, "/")
+		"storageClasses"}, "/")
 
 	res := S3model.ListStorageClasses{}
 	if err := b.Recv(url, "GET", XMLHeaders, nil, &res, true, ""); err != nil {

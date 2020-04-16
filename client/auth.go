@@ -47,6 +47,7 @@ const (
 // AuthOptions Auth Options
 type AuthOptions interface {
 	GetTenantID() string
+	GetUserID() string
 }
 
 // NewKeystoneAuthOptions implementation
@@ -75,6 +76,10 @@ func (k *KeystoneAuthOptions) GetTenantID() string {
 	return k.TenantID
 }
 
+func (k *KeystoneAuthOptions) GetUserID() string {
+	return k.UserID
+}
+
 // NewNoauthOptions implementation
 func NewNoauthOptions(tenantID string) *NoAuthOptions {
 	return &NoAuthOptions{TenantID: tenantID}
@@ -83,11 +88,16 @@ func NewNoauthOptions(tenantID string) *NoAuthOptions {
 // NoAuthOptions implementation
 type NoAuthOptions struct {
 	TenantID string
+	UserID string
 }
 
 // GetTenantID implementation
 func (n *NoAuthOptions) GetTenantID() string {
 	return n.TenantID
+}
+
+func (n *NoAuthOptions) GetUserID() string {
+	return n.UserID
 }
 
 // LoadKeystoneAuthOptions implementation

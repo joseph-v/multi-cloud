@@ -195,7 +195,8 @@ func objectListAction(cmd *cobra.Command, args []string) {
 		Fatalln(HTTPErrStrip(err))
 	}
 
-	keys := KeyList{"ObjectKey", "BucketName", "Size", "Backend"}
+	// keys := KeyList{"ObjectKey", "BucketName", "Size", "Backend"}
+	keys := KeyList{"LastModified", "Key", "Size", "Location", "Tier", "StorageClass", "Backend"}
 	PrintList(resp, keys, FormatterList{})
 }
 
